@@ -6,9 +6,12 @@ import (
 	"context"
 	"fmt"
 	"cloud.google.com/go/storage"
-	"io/ioutil"
-	"github.com/arizard/fish-less-coffee/entities"
+	// "io/ioutil"
 	"github.com/arizard/fish-less-coffee/infrastructure"
+	"github.com/arizard/fish-less-coffee/presenters"
+	"github.com/arizard/fish-less-coffee/handlers"
+	"net/http"
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -16,7 +19,7 @@ func main() {
 
 	ctx := context.Background()
 	bucketName := "arie-images"
-	client, err := storage.NewClient(ctx)
+	client, _ := storage.NewClient(ctx)
 
 	bucket := client.Bucket(bucketName)
 
@@ -25,29 +28,21 @@ func main() {
 		Bucket: bucket,
 	}
 
-	fmt.Printf("Setting up services...\n")
+	fmt.Printf("Setting up layers...\n")
 
-	userFileService := entities.UserFileService{
-		Repository: userFileRepo,
+	htmlPresenter := presenters.HTMLPresenter{}
+
+	r := mux.NewRouter().StrictSlash(false)
+	HTMLHandler := handlers.Handler{
+		userFileRepo,
+		htmlPresenter,
 	}
 
-	fmt.Printf("Adding a new file to GCS...\n")
+	r.HandleFunc("/", HTMLHandler.Index).Methods("GET")
 
-	fileName := "test-image-2.png"
+	r.HandleFunc("/look/{name}", HTMLHandler.GetPublicURL).Methods("GET")
+	r.HandleFunc("/give", HTMLHandler.UploadUserFile).Methods("POST")
 
-	imgBytes, err := ioutil.ReadFile(fileName)
-	if err != nil {
-		fmt.Printf("Error: %s", err)
-	}
-
-	newUserFile := userFileService.NewUserFile(fileName, imgBytes)
-
-	userFileRepo.Add(newUserFile)
-
-	fmt.Printf(
-		"Link: https://storage.googleapis.com/%s/%s\n",
-		bucketName,
-		fileName,
-	)
+	http.ListenAndServe(":8080", r)
 
 }

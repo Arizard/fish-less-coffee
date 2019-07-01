@@ -28,4 +28,5 @@ func (s *UserFileService) NewUserFile(name string, data []byte) UserFile {
 type UserFileRepository interface {
 	Add(userFile UserFile)
 	Get(name string) UserFile
+	GetPublicURL(name string) string
 }
