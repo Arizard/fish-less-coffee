@@ -1,0 +1,1 @@
+export GOOGLE_APPLICATION_CREDENTIALS="/Users/arie/go/src/github.com/arizard/fish-less-coffee/arie-personal-arie-images-service.json";
