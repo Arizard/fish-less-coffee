@@ -26,7 +26,7 @@ func (s *UserFileService) NewUserFile(name string, data []byte) UserFile {
 
 // UserFileRepository manages the storage of UserFile instances.
 type UserFileRepository interface {
-	Add(userFile UserFile)
+	Add(userFile *UserFile)
 	Get(name string) UserFile
 	GetPublicURL(name string) string
 }

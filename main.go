@@ -38,10 +38,15 @@ func main() {
 		htmlPresenter,
 	}
 
+	r.NotFoundHandler = http.HandlerFunc(HTMLHandler.NotFound)
+
 	r.HandleFunc("/", HTMLHandler.Index).Methods("GET")
 
 	r.HandleFunc("/look/{name}", HTMLHandler.GetPublicURL).Methods("GET")
 	r.HandleFunc("/give", HTMLHandler.UploadUserFile).Methods("POST")
+
+	fs := http.StripPrefix("/static/", http.FileServer(http.Dir("./static/")))
+	r.PathPrefix("/static/").Handler(fs)
 
 	http.ListenAndServe(":8080", r)
 
